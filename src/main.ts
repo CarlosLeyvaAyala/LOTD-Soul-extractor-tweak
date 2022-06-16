@@ -1,14 +1,14 @@
+import { FormLib } from "DmLib"
 import {
-  on,
-  Game,
-  ObjectReference,
   Actor,
   Explosion,
+  Game,
   Message,
+  ObjectReference,
+  on,
   SoulGem,
   Weapon,
 } from "skyrimPlatform"
-import { FormLib } from "DmLib"
 
 export function main() {
   on("modEvent", (e) => {
@@ -96,19 +96,19 @@ function GetCharge(w: Weapon) {
 /** Transform petty soul gems to final result. */
 function TransformGems(count: number) {
   // Petty to lesser
-  let lesser = count / 2
+  let lesser = Math.round(count / 2)
   let petty = count % 2
 
   // Lesser to common
-  let common = lesser / 2
+  let common = Math.round(lesser / 2)
   lesser %= 2
 
   // Common to greater
-  let greater = common / 2
+  let greater = Math.round(common / 2)
   common %= 2
 
   //  Greater to grand
-  let grand = (greater / 3) * 2
+  let grand = Math.round(greater / 3) * 2
   greater %= 3
 
   AddGemsToExtractor(petty, lesser, common, greater, grand % 1)
@@ -124,9 +124,9 @@ function AddGemsToExtractor(
   gt: number,
   gn: number
 ) {
-  container.addItem(sgPetty, p, true)
-  container.addItem(sgLesser, l, true)
-  container.addItem(sgCommon, c, true)
-  container.addItem(sgGreater, gt, true)
-  container.addItem(sgGrand, gn, true)
+  if (p) container.addItem(sgPetty, p, true)
+  if (l) container.addItem(sgLesser, l, true)
+  if (c) container.addItem(sgCommon, c, true)
+  if (gt) container.addItem(sgGreater, gt, true)
+  if (gn) container.addItem(sgGrand, gn, true)
 }
