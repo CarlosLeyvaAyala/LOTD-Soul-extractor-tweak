@@ -1,4 +1,5 @@
-import { FormLib } from "DmLib"
+import { Player } from "DmLib/Actor/player"
+import { forEachItem } from "DmLib/Form/forEachItem"
 import {
   Actor,
   Explosion,
@@ -6,6 +7,7 @@ import {
   Message,
   ObjectReference,
   on,
+  printConsole,
   SoulGem,
   Weapon,
 } from "skyrimPlatform"
@@ -59,16 +61,16 @@ function StrToObjs(formIds: string) {
 function ItemsToGems() {
   let count = 0
   const cn = container
-  const p = FormLib.Player()
+  const p = Player()
 
-  FormLib.ForEachItemREx(cn, (weap) => {
+  forEachItem(cn, (weap) => {
     const w = Weapon.from(weap)
     if (!w) {
       cn.removeItem(weap, cn.getItemCount(weap), true, p)
       return
     }
-
-    count += GetWeaponGems(GetCharge(w), w)
+    const gems = GetWeaponGems(GetCharge(w), w)
+    count += gems
   })
   return count
 }
@@ -77,7 +79,7 @@ function ItemsToGems() {
 function GetWeaponGems(charge: number, w: Weapon) {
   const n = relicHolder.getItemCount(w)
   if (charge <= 250) {
-    relicHolder.removeItem(w, n, true, FormLib.Player())
+    relicHolder.removeItem(w, n, true, Player())
     lackCharge.show(0, 0, 0, 0, 0, 0, 0, 0, 0)
     return 0
   }
@@ -95,23 +97,19 @@ function GetCharge(w: Weapon) {
 
 /** Transform petty soul gems to final result. */
 function TransformGems(count: number) {
-  // Petty to lesser
-  let lesser = Math.round(count / 2)
-  let petty = count % 2
+  const grand = Math.floor(count / 24)
+  let mod = count % 24
 
-  // Lesser to common
-  let common = Math.round(lesser / 2)
-  lesser %= 2
+  const greater = Math.floor(mod / 8)
+  mod %= 8
 
-  // Common to greater
-  let greater = Math.round(common / 2)
-  common %= 2
+  const common = Math.floor(mod / 4)
+  mod %= 4
 
-  //  Greater to grand
-  let grand = Math.round(greater / 3) * 2
-  greater %= 3
+  const lesser = Math.floor(mod / 2)
+  const petty = mod % 2
 
-  AddGemsToExtractor(petty, lesser, common, greater, grand % 1)
+  AddGemsToExtractor(petty, lesser, common, greater, grand)
 }
 
 /** Add the calculated gem count to the soul extractor.\
@@ -124,9 +122,10 @@ function AddGemsToExtractor(
   gt: number,
   gn: number
 ) {
-  if (p) container.addItem(sgPetty, p, true)
-  if (l) container.addItem(sgLesser, l, true)
-  if (c) container.addItem(sgCommon, c, true)
-  if (gt) container.addItem(sgGreater, gt, true)
-  if (gn) container.addItem(sgGrand, gn, true)
+  printConsole(p, l, c, gt, gn)
+  if (p > 0) container.addItem(sgPetty, p, true)
+  if (l > 0) container.addItem(sgLesser, l, true)
+  if (c > 0) container.addItem(sgCommon, c, true)
+  if (gt > 0) container.addItem(sgGreater, gt, true)
+  if (gn > 0) container.addItem(sgGrand, gn, true)
 }
